@@ -58,4 +58,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&sc.ListenHost, "listen-host", config.LISTEN_HOST, "指定接口使用的 host/ip")
 	rootCmd.PersistentFlags().IntVar(&sc.ListenPort, "listen-port", config.LISTEN_PORT, "指定接口使用的端口")
+
+	// 默认规则配置
+	rootCmd.PersistentFlags().IntVar(&sc.RuleConfig.RuleNameLength, "rule-name-length", config.RULE_NAME_LENGTH, "所有名称长度现在")
 }
