@@ -17,7 +17,55 @@ type ListPartition struct {
 	ListPartitionItems []*ListPartitionItem `json:"list_partition_items" form:"list_partition_items"`
 }
 
+func NewListPartition() *ListPartition {
+	return &ListPartition{
+		ListPartitionItems: make([]*ListPartitionItem, 0, 5),
+	}
+}
+
+func (this *ListPartition) AddPartitionItem(partitionItem *ListPartitionItem) *ListPartition {
+	this.ListPartitionItems = append(this.ListPartitionItems, partitionItem)
+	return this
+}
+
+func (this *ListPartition) GetMetaStr() (string, error) {
+	parts := make([]string, 0, 3)
+
+	for _, item := range this.ListPartitionItems {
+		partStr, err := item.GetMetaStr()
+		if err != nil {
+			return "", err
+		}
+		partStr = fmt.Sprintf("    %s", partStr)
+		parts = append(parts, partStr)
+	}
+
+	return strings.Join(parts, ",\n"), nil
+}
+
 type ListPartitionItem struct {
+	Name   string        `json:"name" form:"name"`
+	Values []interface{} `json:"values" form:"values"`
+}
+
+func NewListPartitionItem(name string, values []interface{}) *ListPartitionItem {
+	return &ListPartitionItem{
+		Name:   name,
+		Values: values,
+	}
+}
+
+func (this *ListPartitionItem) GetMetaStr() (string, error) {
+	if strings.TrimSpace(this.Name) == "" {
+		return "", fmt.Errorf("List 分区必须要有分区名. %v", this.Values)
+	}
+
+	if len(this.Values) < 1 { // 没有值
+		return "", fmt.Errorf("List 分区必须要有指定值. %s", this.Name)
+	}
+
+	value := utils.WarpInterfaceStrs(this.Values, "%#v", ", ")
+	return fmt.Sprintf("PARTITION %s VALUES IN (%s)", this.Name, value), nil
 }
 
 type RangePartition struct {

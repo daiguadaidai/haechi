@@ -41,3 +41,29 @@ func Test_RangePartition(t *testing.T) {
 	}
 	fmt.Println(partStr)
 }
+
+func Test_ListPartitionItem(t *testing.T) {
+	part1 := NewListPartitionItem("p_1", []interface{}{1, 2, 3, "2"})
+	partStr1, err := part1.GetMetaStr()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	fmt.Println(partStr1)
+}
+
+func Test_ListPartition(t *testing.T) {
+	listPartition := NewListPartition()
+
+	part1 := NewListPartitionItem("p_01", []interface{}{1, 2, 3, 4})
+	part2 := NewListPartitionItem("p_02", []interface{}{"1", "2", "3", "4"})
+	part3 := NewListPartitionItem("p_03", []interface{}{5, 6, 7, 8})
+	part4 := NewListPartitionItem("p_04", []interface{}{"a", "B", "c", "d"})
+
+	listPartition.AddPartitionItem(part1).AddPartitionItem(part2).AddPartitionItem(part3).AddPartitionItem(part4)
+
+	partStr, err := listPartition.GetMetaStr()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	fmt.Println(partStr)
+}

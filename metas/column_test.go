@@ -98,4 +98,22 @@ func TestColumn_GetMetaStr(t *testing.T) {
 	} else {
 		fmt.Println(field)
 	}
+
+	column_06 := &Column{
+		Name:             "col_06",
+		Type:             "DECIMAL",
+		TypeLen:          10,
+		TypeDecimal:      10,
+		TypeValues:       []string{"1", "2", "3", "4", "5"},
+		HaveDefaultValue: true,
+		DefaultNull:      false,
+		DefaultValue:     "aaa",
+		Charset:          "utf8mb4",
+		Collate:          "utf8mb4_unicode_ci",
+	}
+	if field, err := column_06.GetMetaStr(); err != nil {
+		t.Fatal(err.Error())
+	} else {
+		fmt.Println(field)
+	}
 }
