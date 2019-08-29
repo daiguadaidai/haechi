@@ -78,4 +78,24 @@ func TestColumn_GetMetaStr(t *testing.T) {
 	} else {
 		fmt.Println(field)
 	}
+
+	column_05 := &Column{
+		Name:               "col_05",
+		Type:               "DATETIME",
+		TypeLen:            6,
+		TypeDecimal:        10,
+		TypeValues:         []string{"1", "2", "3", "4", "5"},
+		HaveDefaultValue:   true,
+		DefaultNull:        false,
+		DefaultValue:       "CURRENT_TIMESTAMP(6)",
+		DefaultValueIsFunc: true,
+		OnUpdateValue:      "CURRENT_TIMESTAMP(6)",
+		Charset:            "utf8mb4",
+		Collate:            "utf8mb4_unicode_ci",
+	}
+	if field, err := column_05.GetMetaStr(); err != nil {
+		t.Fatal(err.Error())
+	} else {
+		fmt.Println(field)
+	}
 }

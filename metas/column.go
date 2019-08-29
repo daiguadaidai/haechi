@@ -120,18 +120,20 @@ func TypeHaveDefaultValue(t string) bool {
 }
 
 type Column struct {
-	Name             string   `json:"name" form:"name"`
-	Type             string   `json:"type" form:"type"`
-	TypeLen          int      `json:"type_len" form:"type_len"`
-	TypeDecimal      int      `json:"type_decimal" form:"type_decimal"`
-	TypeValues       []string `json:"type_values" form:"type_values"` // ENUM('a', 'b', 'c'), SET('a', 'b', 'c')
-	IsNull           bool     `json:"is_null" form:"is_null"`
-	HaveDefaultValue bool     `json:"have_default_value" form:"have_default_value"` // 是否有默认值
-	DefaultNull      bool     `json:"default_null" form:"default_null"`             // 默认值是否为NULL
-	DefaultValue     string   `json:"default_value" form:"default_value"`           // 默认值
-	Charset          string   `json:"charset" form:"charset"`
-	Collate          string   `json:"collate" form:"collate"`
-	Comment          string   `json:"comment" form:"comment"`
+	Name               string   `json:"name" form:"name"`
+	Type               string   `json:"type" form:"type"`
+	TypeLen            int      `json:"type_len" form:"type_len"`
+	TypeDecimal        int      `json:"type_decimal" form:"type_decimal"`
+	TypeValues         []string `json:"type_values" form:"type_values"` // ENUM('a', 'b', 'c'), SET('a', 'b', 'c')
+	IsNull             bool     `json:"is_null" form:"is_null"`
+	HaveDefaultValue   bool     `json:"have_default_value" form:"have_default_value"` // 是否有默认值
+	DefaultNull        bool     `json:"default_null" form:"default_null"`             // 默认值是否为NULL
+	DefaultValue       string   `json:"default_value" form:"default_value"`           // 默认值
+	DefaultValueIsFunc bool     `json:"default_value_is_func" form:"default_value_is_func"`
+	OnUpdateValue      string   `json:"on_update_value" form:"on_update_value"`
+	Charset            string   `json:"charset" form:"charset"`
+	Collate            string   `json:"collate" form:"collate"`
+	Comment            string   `json:"comment" form:"comment"`
 }
 
 func NewColumn(name string) *Column {
@@ -154,10 +156,15 @@ func (this *Column) SetType(t string, length, decimal int, values []string) erro
 	return nil
 }
 
-func (this *Column) SetDefaultValue(haveValue, defaultNull bool, value string) {
+func (this *Column) SetDefaultValue(haveValue, defaultNull bool, value string, isFunc bool) {
 	this.HaveDefaultValue = haveValue
 	this.DefaultNull = defaultNull
 	this.DefaultValue = value
+	this.DefaultValueIsFunc = isFunc
+}
+
+func (this *Column) SetOnUpdateValue(value string) {
+	this.OnUpdateValue = value
 }
 
 func (this *Column) SetCharset(charset string) {
@@ -199,6 +206,10 @@ func (this *Column) GetMetaStr() (string, error) {
 	defaultValue, ok := this.GetDefaultValue()
 	if ok {
 		items = append(items, fmt.Sprintf("DEFAULT %s", defaultValue))
+	}
+
+	if strings.TrimSpace(this.OnUpdateValue) != "" {
+		items = append(items, fmt.Sprintf("ON UPDATE %s", this.OnUpdateValue))
 	}
 
 	items = append(items, fmt.Sprintf("COMMENT %#v", this.GetComment()))
@@ -246,6 +257,10 @@ func (this *Column) GetDefaultValue() (string, bool) {
 
 	if this.DefaultNull {
 		return "NULL", true
+	}
+
+	if this.DefaultValueIsFunc {
+		return fmt.Sprintf("%v", this.DefaultValue), true
 	}
 
 	return fmt.Sprintf("%#v", this.DefaultValue), true
